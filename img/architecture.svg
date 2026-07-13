@@ -1,67 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 520" role="img" aria-label="postgres-Core  XRK-AGT B¶„">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#f7f8fa"/>
-      <stop offset="100%" stop-color="#eef1f4"/>
-    </linearGradient>
-    <linearGradient id="pg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#336791"/>
-      <stop offset="100%" stop-color="#2b5678"/>
-    </linearGradient>
-    <filter id="shadow" x="-8%" y="-8%" width="116%" height="120%">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1a1a1a" flood-opacity="0.12"/>
-    </filter>
-    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-      <path d="M0,0 L8,4 L0,8 Z" fill="#64748b"/>
-    </marker>
-  </defs>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480" width="900" height="480">
+  <title>postgres-Core architecture</title>
+  <rect width="900" height="480" fill="#f4f6f8"/>
+  <text x="450" y="32" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="700" fill="#1e293b">postgres-Core + mongodb-Core</text>
+  <text x="450" y="54" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" fill="#64748b">Parallel DB Cores, isolated connections</text>
 
-  <rect width="920" height="520" fill="url(#bg)" rx="16"/>
-  <text x="460" y="34" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="18" font-weight="700" fill="#1e293b">XRK-AGT pn“B · postgres-Core ìËÓ“</text>
-  <text x="460" y="56" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="12" fill="#64748b">ACID · sû‹ · Áû SQL ·  mongodb-Core vL’rp</text>
+  <rect x="40" y="76" width="820" height="56" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="56" y="100" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#334155">L0 Runtime</text>
+  <text x="56" y="118" font-family="Arial,sans-serif" font-size="12" fill="#64748b">Redis built-in only</text>
 
-  <g filter="url(#shadow)">
-    <rect x="40" y="84" width="840" height="88" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
-    <text x="60" y="110" font-family="Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700" fill="#334155">L0 · XRK-AGT Runtime</text>
-    <text x="60" y="132" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#64748b">Redis …n · + PostgreSQL úÞ</text>
-    <rect x="60" y="142" width="120" height="22" rx="6" fill="#fee2e2" stroke="#fca5a5"/>
-    <text x="120" y="157" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="10" font-weight="600" fill="#b91c1c">Redis</text>
-  </g>
+  <rect x="40" y="148" width="390" height="120" rx="10" fill="#ecfdf5" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="56" y="172" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#14532d">mongodb-Core</text>
+  <text x="56" y="192" font-family="Arial,sans-serif" font-size="11" fill="#64748b">registerCollection | flexible schema</text>
+  <text x="56" y="248" font-family="Arial,sans-serif" font-size="11" fill="#64748b">profiles, logs, JSON docs</text>
 
-  <g filter="url(#shadow)">
-    <rect x="40" y="196" width="400" height="148" rx="12" fill="#ffffff" stroke="#86efac"/>
-    <text x="60" y="222" font-family="Segoe UI, system-ui, sans-serif" font-size="12" font-weight="700" fill="#14532d">mongodb-Core‡c“	</text>
-    <text x="60" y="242" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#64748b">registerCollection · u; Schema</text>
-  </g>
+  <rect x="470" y="148" width="390" height="120" rx="10" fill="#eff6ff" stroke="#336791" stroke-width="2"/>
+  <text x="486" y="172" font-family="Arial,sans-serif" font-size="13" font-weight="700" fill="#1e3a8a">postgres-Core</text>
+  <text x="486" y="192" font-family="Arial,sans-serif" font-size="11" fill="#64748b">registerTable | SQL migrations | transactions</text>
+  <rect x="486" y="204" width="100" height="28" rx="4" fill="#fff" stroke="#93c5fd"/>
+  <text x="536" y="222" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#1d4ed8">Pool</text>
+  <rect x="598" y="204" width="110" height="28" rx="4" fill="#fff" stroke="#93c5fd"/>
+  <text x="653" y="222" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#1d4ed8">Repository</text>
+  <rect x="720" y="204" width="120" height="28" rx="4" fill="#fff" stroke="#93c5fd"/>
+  <text x="780" y="222" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#1d4ed8">Admin HTTP</text>
 
-  <g filter="url(#shadow)">
-    <rect x="480" y="196" width="400" height="148" rx="12" fill="#ffffff" stroke="#93c5fd" stroke-width="2"/>
-    <rect x="480" y="196" width="400" height="28" rx="12" fill="url(#pg)"/>
-    <rect x="480" y="212" width="400" height="12" fill="url(#pg)"/>
-    <text x="500" y="215" font-family="Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700" fill="#ffffff">L1 · postgres-Coresû“	</text>
+  <rect x="40" y="288" width="820" height="80" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="56" y="312" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#334155">L2 Business Core</text>
+  <text x="56" y="334" font-family="Arial,sans-serif" font-size="12" fill="#64748b">Orders/ledger -&gt; postgres | Documents -&gt; mongo | Cache -&gt; Redis</text>
 
-    <rect x="500" y="240" width="110" height="44" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
-    <text x="555" y="258" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="9" font-weight="600" fill="#1e3a8a">Pool / client</text>
-    <text x="555" y="274" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="8" fill="#1d4ed8">pg q¨</text>
-
-    <rect x="622" y="240" width="110" height="44" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
-    <text x="677" y="258" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="9" font-weight="600" fill="#1e3a8a">registerTable</text>
-    <text x="677" y="274" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="8" fill="#1d4ed8">&lt;core&gt;_&lt;entity&gt;</text>
-
-    <rect x="744" y="240" width="110" height="44" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
-    <text x="799" y="258" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="9" font-weight="600" fill="#1e3a8a">SQL migrations</text>
-    <text x="799" y="274" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="8" fill="#1d4ed8">‹¡ · "</text>
-
-    <text x="500" y="316" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#64748b">data/postgres-core/config.yaml · pnpm add pg</text>
-  </g>
-
-  <g filter="url(#shadow)">
-    <rect x="40" y="368" width="840" height="112" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
-    <text x="60" y="394" font-family="Segoe UI, system-ui, sans-serif" font-size="13" font-weight="700" fill="#334155">L2 · ¡ Core</text>
-    <text x="60" y="414" font-family="Segoe UI, system-ui, sans-serif" font-size="11" fill="#64748b">¢U/&¡ ’ postgres · (7;Ï/å× ’ mongo · ïö import $* lib</text>
-    <rect x="620" y="428" width="240" height="36" rx="8" fill="#fff7ed" stroke="#fdba74"/>
-    <text x="740" y="450" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif" font-size="10" fill="#9a3412">ípn /  ’ Redis</text>
-  </g>
-
-  <line x1="680" y1="344" x2="680" y2="368" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="450" y1="268" x2="450" y2="288" stroke="#64748b" stroke-width="1.5"/>
+  <polygon points="450,288 446,280 454,280" fill="#64748b"/>
 </svg>

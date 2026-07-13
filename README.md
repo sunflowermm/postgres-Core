@@ -16,7 +16,7 @@
 
 <br>
 
-[安装](#安装) · [架构](#架构) · [快速接入](#快速接入) · [配置](#配置) · [API](#http-api) · [迁移](#迁移) · [与 Mongo 分工](#与-mongodb-core-分工) · [铁律](#铁律)
+[安装](#安装) · [架构](#架构) · [API 文档](#api-文档) · [快速接入](#快速接入) · [配置](#配置) · [HTTP](#http-api) · [迁移](#迁移) · [与 Mongo 分工](#与-mongodb-core-分工) · [铁律](#铁律)
 
 <br>
 
@@ -56,12 +56,31 @@ cd .. && pnpm add pg && node app
 
 ![postgres-Core 分层架构](./img/architecture.svg)
 
-```text
-XRK-AGT Runtime       →  Redis（内置）
-postgres-Core（本仓库）  →  Pool · registerTable · Repository · SQL migrations
-mongodb-Core（可选）   →  文档库，并行不冲突
-业务 Core              →  lib/store/*Repo.js，按场景 import 对应 lib
+> GitHub 若无法预览 SVG，请看 Mermaid。SVG 使用 UTF-8 + ASCII 标签，见 `.gitattributes`。
+
+```mermaid
+flowchart LR
+  subgraph mongo["mongodb-Core"]
+    M[Documents]
+  end
+  subgraph pg["postgres-Core"]
+    P[SQL / ACID]
+  end
+  B[Business Core] --> M
+  B --> P
+  R[Redis Runtime] --> B
 ```
+
+## API 文档
+
+完整说明：**[`docs/API.md`](./docs/API.md)**
+
+| 常用入口 | 用途 |
+|----------|------|
+| `registerTable(owner, entity, { indexSql })` | 注册表 + 索引声明 |
+| `Repository` | 参数化 CRUD |
+| `withTransaction(fn)` | 跨表事务 |
+| `runMigrations()` | SQL 迁移 |
 
 ### 目录结构
 
@@ -219,6 +238,7 @@ export default {
 
 ## 相关文档
 
+- **API 参考**：[`docs/API.md`](./docs/API.md)
 - [`mongodb-Core`](../mongodb-Core/README.md) — 文档库 Core
 - AGT Redis：[`docs/database.md`](https://github.com/sunflowermm/XRK-AGT/blob/main/docs/database.md)
 - 产品 Agent：[`AGENTS.md`](./AGENTS.md)
