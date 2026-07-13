@@ -1,0 +1,11 @@
+runMigrationsOnBoot: true
+ensureIndexesOnBoot: true
+auditWrites: false
+tablePrefix: ''
+connection:
+  host: 127.0.0.1
+  port: 5432
+  database: xrk_agt
+  username: postgres
+  password: ''
+  poolSize: 10
