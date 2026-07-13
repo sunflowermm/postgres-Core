@@ -4,19 +4,18 @@
 
 # 🐘 postgres-Core
 
-**PostgreSQL 专业管理层 · 表注册 · Repository · SQL 迁移 · 事务 · Admin API**
+**PostgreSQL 持久化层 · 表注册 · Repository · SQL 迁移 · 事务 · 管理 API**
 
-<sub>XRK-AGT 独立业务 Core · 单独 Git 仓库 · clone 到宿主 `core/postgres-Core` 运行</sub>
+<sub>XRK-AGT 业务 Core · 安装于宿主 `core/postgres-Core`</sub>
 
 <br>
 
 [![XRK-AGT](https://img.shields.io/badge/XRK--AGT-Node_≥26-1a1a1a?style=flat-square)](https://github.com/sunflowermm/XRK-AGT)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-![Core](https://img.shields.io/badge/Core-关系型持久化-f7f5f0?style=flat-square&labelColor=4a4a4a)
 
 <br>
 
-[安装](#安装) · [架构](#架构) · [API 文档](#api-文档) · [快速接入](#快速接入) · [配置](#配置) · [HTTP](#http-api) · [迁移](#迁移) · [与 Mongo 分工](#与-mongodb-core-分工) · [铁律](#铁律)
+[安装](#安装) · [架构](#架构) · [API](#api-文档) · [快速开始](#快速开始) · [配置](#配置) · [HTTP](#http-api) · [迁移](#迁移) · [约定](#开发约定)
 
 <br>
 
@@ -24,17 +23,16 @@
 
 ---
 
-## 项目定位
+## 概述
+
+postgres-Core 为 XRK-AGT 提供 PostgreSQL 连接池、表命名空间、Repository 基类、SQL 迁移与事务辅助，适用于订单、账务、报表等需要 ACID 与关系查询的场景。
 
 | 项 | 说明 |
 |---|---|
-| **仓库关系** | **独立仓库**，不入 XRK-AGT 主仓；AGT Runtime **不**依赖 PostgreSQL |
-| **安装位置** | 宿主 `core/postgres-Core/`（与 `mongodb-Core` 同级，**互不干扰**） |
-| **职责** | 连接池、表命名空间、Repository、SQL 迁移、索引治理、事务辅助、健康检查 HTTP |
-| **典型场景** | 订单、账务、强事务、复杂 JOIN、合规报表 |
-| **不做** | 业务订单逻辑本身（交给 L2 业务 Core） |
-
-> **Redis** 仍由 AGT Runtime 内置。**MongoDB** 用 [`mongodb-Core`](../mongodb-Core/README.md) 管文档库；两者可同时启用。
+| 运行环境 | [XRK-AGT](https://github.com/sunflowermm/XRK-AGT)（Node ≥ 26） |
+| 安装路径 | `core/postgres-Core/` |
+| 依赖 | 宿主安装 `pg`；PostgreSQL 服务需自行部署 |
+| 与 mongodb-Core | 可并行安装，分别负责关系型与文档型数据 |
 
 ---
 
@@ -42,81 +40,59 @@
 
 ```bash
 cd XRK-AGT/core
-git clone <你的 postgres-Core 仓库 URL> postgres-Core
-cd .. && pnpm add pg && node app
+git clone https://github.com/sunflowermm/postgres-Core.git postgres-Core
+cd ..
+pnpm add pg
+node app
 ```
 
-首次启动从 `default/postgres-core.yaml` 引导生成 **`data/postgres-core/config.yaml`**。
-
-> 本 Core **无** `package.json`，使用宿主 `#` 别名。`pg` 驱动由宿主根目录 `pnpm add pg` 安装。
+首次启动时，配置从 `core/postgres-Core/default/postgres-core.yaml` 复制到 `data/postgres-core/config.yaml`。
 
 ---
 
 ## 架构
 
-![postgres-Core 分层架构](./img/architecture.svg)
-
-> GitHub 若无法预览 SVG，请看 Mermaid。SVG 使用 UTF-8 + ASCII 标签，见 `.gitattributes`。
+![分层架构](./img/architecture.png)
 
 ```mermaid
 flowchart LR
-  subgraph mongo["mongodb-Core"]
+  subgraph doc["mongodb-Core"]
     M[Documents]
   end
-  subgraph pg["postgres-Core"]
+  subgraph rel["postgres-Core"]
     P[SQL / ACID]
   end
   B[Business Core] --> M
   B --> P
-  R[Redis Runtime] --> B
-```
-
-## API 文档
-
-完整说明：**[`docs/API.md`](./docs/API.md)**
-
-| 常用入口 | 用途 |
-|----------|------|
-| `registerTable(owner, entity, { indexSql })` | 注册表 + 索引声明 |
-| `Repository` | 参数化 CRUD |
-| `withTransaction(fn)` | 跨表事务 |
-| `runMigrations()` | SQL 迁移 |
-
-### 目录结构
-
-```text
-postgres-Core/
-├── README.md · AGENTS.md
-├── img/architecture.svg
-├── commonconfig/postgres-core.js
-├── default/postgres-core.yaml
-├── plugin/init.js              # bootstrap + 挂全局 PostgresService
-├── http/admin.js
-├── lib/
-│   ├── index.js                # ★ 公开 API
-│   ├── client.js               # Pool / connect / ping
-│   ├── table-registry.js
-│   ├── repository-base.js
-│   ├── migration-runner.js
-│   ├── index-manager.js
-│   ├── transaction.js · tenant.js · config.js
-└── migrations/**/*.js          # SQL 迁移（CREATE TABLE 等）
+  R[Redis] --> B
 ```
 
 ---
 
-## 快速接入
+## API 文档
 
-### 1. 迁移里建表
+详见 **[`docs/API.md`](./docs/API.md)**。
 
-`migrations/lsy/002_lsy_orders.js`：
+| API | 说明 |
+|---|---|
+| `registerTable(owner, entity, options?)` | 注册表元数据与索引 SQL |
+| `Repository` | 参数化 CRUD |
+| `withTransaction(fn)` | 跨表事务 |
+| `runMigrations()` | SQL  schema 迁移 |
+
+---
+
+## 快速开始
+
+### 1. 迁移中定义表结构
 
 ```javascript
+// migrations/shop/002_shop_orders.js
 export default {
-  id: '002_lsy_orders',
+  id: '002_shop_orders',
   async up(pool) {
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS lsy_orders (
+      CREATE TABLE IF NOT EXISTS shop_orders (
         id BIGSERIAL PRIMARY KEY,
         order_id TEXT NOT NULL UNIQUE,
         user_id TEXT NOT NULL,
@@ -129,13 +105,13 @@ export default {
 };
 ```
 
-### 2. 注册表 + Repository
+### 2. Repository
 
 ```javascript
 import { registerTable, Repository, withTransaction } from '../../../postgres-Core/lib/index.js';
 
-const ORDERS = registerTable('lsy', 'orders', {
-  indexSql: ['CREATE INDEX IF NOT EXISTS lsy_orders_user ON lsy_orders (user_id)'],
+const ORDERS = registerTable('shop', 'orders', {
+  indexSql: ['CREATE INDEX IF NOT EXISTS shop_orders_user ON shop_orders (user_id)'],
 });
 
 export class OrderRepo extends Repository {
@@ -146,26 +122,7 @@ export class OrderRepo extends Repository {
   findByOrderId(orderId) {
     return this.findOne({ order_id: orderId });
   }
-
-  createOrder(row) {
-    return this.insert(row);
-  }
 }
-
-// 强事务示例
-export async function transferOrder(orderId, patch) {
-  return withTransaction(async (client) => {
-    await client.query('UPDATE lsy_orders SET status = $1 WHERE order_id = $2', ['paid', orderId]);
-    // … 其它表
-  });
-}
-```
-
-### 3. 插件内全局
-
-```javascript
-const pool = PostgresService.getPool();
-const { rows } = await pool.query('SELECT 1');
 ```
 
 ---
@@ -176,73 +133,50 @@ const { rows } = await pool.query('SELECT 1');
 |---|---|
 | 默认模板 | `core/postgres-Core/default/postgres-core.yaml` |
 | 运行时 | `data/postgres-core/config.yaml` |
-| 控制台 | CommonConfig → **Postgres-Core** |
-
-| 字段 | 说明 |
-|---|---|
-| `connection.host` / `port` / `database` | PostgreSQL 连接 |
-| `connection.username` / `password` | 认证 |
-| `connection.poolSize` | 连接池大小（默认 10） |
-| `runMigrationsOnBoot` | 启动跑迁移（默认 `true`） |
-| `ensureIndexesOnBoot` | 按 `registerTable.indexSql` 建索引 |
+| 控制台 | CommonConfig → Postgres-Core |
 
 ---
 
 ## HTTP API
 
-| 方法 | 路径 | 说明 |
+| 方法 | 路径 | 响应 |
 |---|---|---|
 | `GET` | `/api/postgres-core/health` | 连接与迁移状态 |
-| `GET` | `/api/postgres-core/tables` | 已注册表列表 |
-| `GET` | `/api/postgres-core/admin/stats` | 各表行数与索引数 |
+| `GET` | `/api/postgres-core/tables` | 已注册表 |
+| `GET` | `/api/postgres-core/admin/stats` | 行数与索引数 |
 
 ---
 
 ## 迁移
 
-- 目录：`migrations/**/*.js`
+- 路径：`migrations/**/*.js`
+- 格式：`export default { id, async up(pool) { ... } }`
 - 记录表：`_postgres_core_migrations`
-- 每个文件导出 `{ id, up(pool) }`，`up` 内写 SQL
-
-```javascript
-export default {
-  id: '003_lsy_users',
-  async up(pool) {
-    await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS lsy_users_email ON lsy_users (email)`);
-  },
-};
-```
 
 ---
 
 ## 与 mongodb-Core 分工
 
-| 场景 | 推荐 |
+| 数据类型 | 推荐 Core |
 |---|---|
-| 订单、支付、库存扣减、对账 | **postgres-Core** |
-| 用户画像、聊天记录、配置快照、快速迭代 JSON | **mongodb-Core** |
-| 缓存、锁、会话 | **Redis（Runtime）** |
-| 同一业务 Core 两种都要 | 各写各的 `*Repo.js`，分别 import |
+| 订单、账务、库存、对账 | postgres-Core |
+| 聊天记录、画像、JSON 文档 | mongodb-Core |
+| 缓存、锁 | Runtime Redis |
 
 ---
 
-## 铁律
+## 开发约定
 
-1. **禁止**业务 Core 直接 `new Pool()` 或裸连 — 走 `postgres-Core/lib`
-2. 表必须 `registerTable('<core>', '<entity>')`，DDL 在 `migrations/`
-3. 表名格式 **`<core>_<entity>`**，与 Mongo 集合同规则，便于团队统一
-4. 复杂查询可在 Repository 子类写参数化 SQL，禁止拼接用户输入
-5. 本 Core 升级不影响 AGT 主仓
-
----
-
-## 相关文档
-
-- **API 参考**：[`docs/API.md`](./docs/API.md)
-- [`mongodb-Core`](../mongodb-Core/README.md) — 文档库 Core
-- AGT Redis：[`docs/database.md`](https://github.com/sunflowermm/XRK-AGT/blob/main/docs/database.md)
-- 产品 Agent：[`AGENTS.md`](./AGENTS.md)
+1. 通过 `postgres-Core/lib` 访问数据库，业务层不创建独立连接池。
+2. 表结构写在 `migrations/`；`registerTable` 负责命名与索引声明。
+3. 物理表名 `<core>_<entity>`，与 mongodb-Core 集合命名一致。
+4. 用户输入仅通过 SQL 参数（`$1, $2…`）传递。
 
 ---
 
-*最后更新：2026-07-13*
+## 链接
+
+- [API 参考](./docs/API.md)
+- [mongodb-Core](https://github.com/sunflowermm/mongodb-Core)
+- [XRK-AGT · Redis](https://github.com/sunflowermm/XRK-AGT/blob/main/docs/database.md)
+- [AGENTS.md](./AGENTS.md)

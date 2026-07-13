@@ -1,7 +1,6 @@
 # postgres-Core API 参考
 
-> 业务 Core **唯一**应 `import` 的入口：`lib/index.js`  
-> 禁止：业务内 `new Pool()`、裸 SQL 拼接用户输入、在 Runtime 建 Postgres 连接
+本文档描述 postgres-Core 对外公开的 JavaScript API。业务 Core 通过 `lib/index.js` 接入 PostgreSQL。
 
 ---
 
@@ -201,4 +200,4 @@ export default {
 | 聊天、画像、JSON 文档 | mongodb-Core |
 | 缓存、锁 | Redis（Runtime） |
 
-同一业务 Core 可同时 `import` 两个 lib，**禁止**混用同一实体两套存储（除非有明确同步策略）。
+同一业务 Core 可同时依赖 mongodb-Core 与 postgres-Core；同一实体应选定一种存储，避免双写除非有同步方案。
