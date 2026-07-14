@@ -1,5 +1,6 @@
 import plugin from '#infrastructure/plugins/plugin.js';
 import { setRuntimeGlobal } from '#utils/runtime-globals.js';
+import { normalizeError } from '#utils/normalize-error.js';
 import * as PostgresService from '../lib/index.js';
 
 export default class PostgresCoreInit extends plugin {
@@ -21,8 +22,8 @@ export default class PostgresCoreInit extends plugin {
       const mig = result.migrations?.length ? result.migrations.join(',') : 'none';
       logger.mark(`[postgres-Core] bootstrap OK migrations=[${mig}]`);
     } catch (err) {
-      logger.error(`[postgres-Core] bootstrap 失败: ${err.message}`);
-      throw err;
+      const error = normalizeError(err);
+      logger.warn(`[postgres-Core] bootstrap 跳过: ${error.message}`);
     }
   }
 }
