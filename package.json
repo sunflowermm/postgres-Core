@@ -1,0 +1,13 @@
+{
+  "name": "postgres-core",
+  "version": "1.0.0",
+  "private": true,
+  "description": "XRK-AGT PostgreSQL 持久化 Core",
+  "type": "module",
+  "engines": {
+    "node": ">=26.0.0"
+  },
+  "dependencies": {
+    "pg": "^8.16.3"
+  }
+}

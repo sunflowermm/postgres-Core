@@ -31,7 +31,7 @@ postgres-Core 为 XRK-AGT 提供 PostgreSQL 连接池、表命名空间、Reposi
 |---|---|
 | 运行环境 | [XRK-AGT](https://github.com/sunflowermm/XRK-AGT)（Node ≥ 26） |
 | 安装路径 | `core/postgres-Core/` |
-| 依赖 | 宿主安装 `pg`；PostgreSQL 服务需自行部署 |
+| 依赖 | 本 Core `package.json` 声明 `pg`；PostgreSQL 服务需自行部署 |
 | 与 mongodb-Core | 可并行安装，分别负责关系型与文档型数据 |
 
 ---
@@ -42,7 +42,7 @@ postgres-Core 为 XRK-AGT 提供 PostgreSQL 连接池、表命名空间、Reposi
 cd XRK-AGT/core
 git clone https://github.com/sunflowermm/postgres-Core.git postgres-Core
 cd ..
-pnpm add pg
+pnpm install
 node app
 ```
 
