@@ -1,13 +1,18 @@
+/**
+ * postgres-Core 启动：bootstrap + 注册可选持久化探活
+ * 连接失败时 soft-skip，不阻断 Runtime。
+ */
 import PluginBase from '../../../src/infrastructure/plugins/plugin-base.js';
 import { setRuntimeGlobal } from '../../../src/utils/runtime-globals.js';
 import { normalizeError } from '../../../src/utils/normalize-error.js';
+import { registerPersistenceProvider } from '../../../src/infrastructure/database/persistence-registry.js';
 import * as PostgresService from '../lib/index.js';
 
 export default class PostgresCoreInit extends PluginBase {
   constructor() {
     super({
       name: 'postgres-core-init',
-      dsc: 'Postgres-Core 启动：迁移、索引、挂载 PostgresService',
+      dsc: 'postgres-Core bootstrap',
       event: 'message',
       priority: 1,
     });
@@ -17,13 +22,24 @@ export default class PostgresCoreInit extends PluginBase {
     if (PostgresCoreInit._booted) return;
     PostgresCoreInit._booted = true;
     try {
-      const result = await PostgresService.bootstrap();
+      await PostgresService.bootstrap();
       setRuntimeGlobal('PostgresService', PostgresService);
-      const mig = result.migrations?.length ? result.migrations.join(',') : 'none';
-      logger.mark(`[postgres-Core] bootstrap OK migrations=[${mig}]`);
+      registerPersistenceProvider({
+        id: 'postgres',
+        kind: 'relational',
+        required: false,
+        core: 'postgres-Core',
+        ping: () => PostgresService.ping(),
+      });
     } catch (err) {
-      const error = normalizeError(err);
-      logger.warn(`[postgres-Core] bootstrap 跳过: ${error.message}`);
+      registerPersistenceProvider({
+        id: 'postgres',
+        kind: 'relational',
+        required: false,
+        core: 'postgres-Core',
+        ping: async () => false,
+        meta: { skipReason: normalizeError(err).message },
+      });
     }
   }
 }
